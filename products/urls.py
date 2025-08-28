@@ -12,8 +12,8 @@ urlpatterns = [
    path("auth/login", login),
    path("auth/me", me),
    path("", include(router.urls)),
-   path("paiements/initiate/", Est_ce_que_le_vendeur),
-   path("paiements/webhook/", Est_ce_que_le_vendeur),
+   path("paiements/initiate/", vendeur),
+   path("paiements/webhook/", vendeur),
    path("notifications/", my_notifications),
    path("notifications/<int:pk>/read/", mark_notification_read),
 ]

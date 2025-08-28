@@ -6,9 +6,9 @@ class IsSiteAdmin(BasePermission):
         return bool(request.user and request.user.is_authenticated and request.user.is_site_admin)
 
 
-class  Est_ce_que_le_vendeur(BasePermission):
+class  vendeur(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.is_Est_ce_que_le_vendeur)
+        return bool(request.user and request.user.is_authenticated and request.user.is_vendeur)
 
 class Est_propriétaire_ou_en_lecture_seule(BasePermission):
     def has_object_permission(self, request, view, obj):

@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token 
 from .models import Boutique,AbonnementFournisseur,Categorie,Produit,Commande,ArticleCommande,Paiement,Notification
-from .serializers import RegisterSerializer,UserPublicSerializer,BoutiqueSerializer, ProduitSerializer,CommandeSerializer,ArticleCommandeSerializer,PaiementSerializer,NotificationSerializer 
-from .permissions import IsSiteAdmin , Est_ce_que_le_vendeur
+from .serializers import RegisterSerializer,UserPublicSerializer , CategorieSerializer,BoutiqueSerializer, ProduitSerializer,CommandeSerializer,ArticleCommandeSerializer,PaiementSerializer,NotificationSerializer 
+from .permissions import IsSiteAdmin , vendeur
 
 User = get_user_model()
 @api_view(["POST"])
@@ -43,7 +43,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     serializer_class = BoutiqueSerializer
 
     # --- S'abonner ---
-    @action(detail=True, methods=["post"], permission_classes=[Est_ce_que_le_vendeur])
+    @action(detail=True, methods=["post"], permission_classes=[vendeur])
     def subscribe(self, request, pk=None):
         boutique = self.get_object()
         sub, created = AbonnementFournisseur.objects.get_or_create(
@@ -58,7 +58,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
         )
 
     # --- Se désabonner ---
-    @action(detail=True, methods=["post"], permission_classes=[Est_ce_que_le_vendeur])
+    @action(detail=True, methods=["post"], permission_classes=[vendeur])
     def unsubscribe(self, request, pk=None):
         boutique = self.get_object()
         try:
@@ -79,7 +79,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
 
 class CategorieViewSet(viewsets.ModelViewSet):
        queryset = Categorie.objects.all().order_by("nom")
-       serializer_class = Est_ce_que_le_vendeur
+       serializer_class = CategorieSerializer
 
        def get_permissions(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -96,7 +96,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update"]:
-            return [Est_ce_que_le_vendeur()]
+            return [vendeur()]
         return [permissions.AllowAny()]
 
     def perform_create(self, serializer):
@@ -120,7 +120,7 @@ class CommandeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.Est_ce_que_le_vendeur:
+        if user.vendeur:
             return Commande.objects.filter(client=user).order_by("-created_at")
         return Commande.objects.filter(vendor=user).order_by("-created_at")
 
@@ -131,7 +131,7 @@ class CommandeViewSet(viewsets.ModelViewSet):
             message=f"Votre commande a été créée avec succès : {Commande.id}"
         )
 
-    @action(detail=False, methods=["get"], permission_classes=[Est_ce_que_le_vendeur])
+    @action(detail=False, methods=["get"], permission_classes=[vendeur])
     def vendor_orders(self, request):
         orders = Commande.objects.filter(items__produit__vendor=request.user).distinct().order_by("-created_at")
         page = self.paginate_queryset(orders)

@@ -11,24 +11,24 @@ User = get_user_model()
 class UserPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "Est_ce_que_le_vendeur", "is_site_admin"]
+        fields = ["id", "username", "vendeur", "is_site_admin"]
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
-    Est_ce_que_le_vendeur = serializers.BooleanField(required=False, default=False)
+    vendeur = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "Est_ce_que_le_vendeur"]
+        fields = ["id", "username", "email", "password", "vendeur"]
 
     def create(self, validated_data):
-        Est_ce_que_le_vendeur = validated_data.pop("Est_ce_que_le_vendeur", False)
+        vendeur = validated_data.pop("vendeur", False)
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data.get("email", ""),
             password=validated_data["password"],
         )
-        user.Est_ce_que_le_vendeur = Est_ce_que_le_vendeur
+        user.vendeur = vendeur
         user.save()
         return user
 
@@ -36,13 +36,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class BoutiqueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boutique
-        fields = ["id", "nom", "description", "est_actif", "créé_à"]
+        fields = ["id", "nom", "description", "actif", "cree_a"]
 
 class AbonnementFournisseurSerializer(serializers.ModelSerializer):
     class Meta:
         model = AbonnementFournisseur
-        fields = ["id", "fournisseur", "boutique", "actif", "commencé_à", "terminé_à"]
-        read_only_fields = ["fournisseur", "actif", "commencé_à", "terminé_à"]
+        fields = ["id", "fournisseur", "boutique", "actif", "debut", "fin"]
+        read_only_fields = ["fournisseur", "actif", "debut", "fin"]
 
 # --- Catalog ---
 class CategorieSerializer(serializers.ModelSerializer):
@@ -55,8 +55,8 @@ class ProduitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Produit
         fields = [
-            "id", "boutique", "fournisseur", "catégorie", "nom", "description",
-            "prix", "stock", "image", "est_actif", "créé_à"
+            "id", "boutique", "fournisseur", "categorie", "nom", "description",
+            "prix", "stock", "image", "actif", "cree_a"
         ]
 
 # --- Orders ---
@@ -69,7 +69,7 @@ class CommandeSerializerSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     class Meta:
         model = Commande
-        fields = ["id", "product", "product_name", "quantity", "price"]
+        fields = ["id", "product", "product_name", "quantity", "prix"]
 
 class CommandeSerializer(serializers.ModelSerializer):
     items = ArticleCommandeSerializer(many=True, write_only=True)
